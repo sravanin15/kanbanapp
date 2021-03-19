@@ -61,9 +61,7 @@ pipeline{
       )
       }
      }
-       stage('Input for deploy in test server') {  
-   input('Do you want to test server proceed?')      
-        }
+      
    stage('Docker-Stage-Deployment') {
    sh label: 'DOCKER DEPLOYMENT', script: 'docker-compose up -d --build'
   }
