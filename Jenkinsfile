@@ -64,7 +64,7 @@ pipeline{
       
    stage('Docker-Stage-Deployment') {
         steps{
-                 docker-compose up -d --build
+                 docker-compose up -d 
         }
   }
             
