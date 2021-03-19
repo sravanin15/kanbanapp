@@ -10,7 +10,8 @@ pipeline{
        stage('Git checkout')
        {
             steps{
-                 git 'https://github.com/sravanin15/kanbanapp.git'
+                
+                  git branch: 'main', url: 'https://github.com/sravanin15/kanbanapp.git'
             }
        }
       stage("validate"){
