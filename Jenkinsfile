@@ -16,12 +16,12 @@ pipeline{
        }
       stage("validate"){
           steps{
-              sh 'mvn -f kanban-board/kanban-app -B -DskipTests clean validate'
+              sh 'mvn -f kanban-app -B -DskipTests clean validate'
           }
       }
        stage("compile"){
           steps{
-              sh 'mvn  -f kanban-board/kanban-app  compile'
+              sh 'mvn  -f kanban-app  compile'
           }
       }
        stage("Build & SonarQube analysis") {
@@ -29,7 +29,7 @@ pipeline{
             steps {
               withSonarQubeEnv('sonarserver') {
                 sh 'java -version'
-                sh 'mvn -f kanban-board/kanban-app  sonar:sonar'
+                sh 'mvn -f kanban-app  sonar:sonar'
               }
             }
           }
@@ -41,7 +41,7 @@ pipeline{
        
        stage("package"){
           steps{
-               sh 'mvn -f kanban-board/kanban-app   -B -DskipTests package '
+               sh 'mvn -f kanban-app   -B -DskipTests package '
           }
       }
      
