@@ -1,79 +1,41 @@
 pipeline{
-     agent any
-     tools{
-         maven 'maven'
-         jdk 'jdk'
+    agent any
 
-  }
-     
-  stages {
-       stage('Git checkout')
-       {
+    stages{
+
+        // stage("removing docker images if exists"){
+        //     steps{
+        //         bat "docker rm kanban-postgres"
+        //         bat "docker rm kanban-app"
+        //         bat "docker rm kanban-ui"
+        //     }
+        // }
+        stage("docker build"){
             steps{
-                 git 'https://github.com/sravanin15/kanbanapp.git'
-            }
-       }
-      stage("validate"){
-          steps{
-              sh 'mvn -f kanban-board/kanban-app -B -DskipTests clean validate'
-          }
-      }
-       stage("compile"){
-          steps{
-              sh 'mvn  -f kanban-board/kanban-app  compile'
-          }
-      }
-       stage("Build & SonarQube analysis") {
-           
-            steps {
-              withSonarQubeEnv('sonarserver') {
-                sh 'java -version'
-                sh 'mvn -f kanban-board/kanban-app  sonar:sonar'
-              }
-            }
-          }
-     stage("Quality gate") {
-            steps {
-                waitForQualityGate abortPipeline: true
+                bat "docker-compose up -d"
             }
         }
-       
-       stage("package"){
-          steps{
-               sh 'mvn -f kanban-board/kanban-app   -B -DskipTests package '
-          }
-      }
-     
-     stage('Deploy to artifactory'){
-        steps{
-        rtUpload(
-         serverId : 'artifactory-server',
-         spec :'''{
-           "files" :[
-           {
-           "pattern":"kanban-app/target/*.jar",
-           "target":"art-doc-dev-loc"
-           }
-           ]
-         }''',
-         
-      )
-      }
-     }
-            
+
+        stage("commiting the deocker images"){
+            steps{
+                bat "docker commit kanban-ui sravanin15/challenge-ui"
+                bat "docker commit kanban-app sravanin15/challenge-app" 
+            }
+        }
+
+        stage("pushing the images to docker hub"){
+            steps{
+                withDockerRegistry([ credentialsId: "dockerhub", url: "" ]){
+                    bat "docker push sravanin15/challenge-app"
+                    bat "docker push sravanin15/challenge-ui"
+                }
+            }
+        }
+
+        stage("kubernates"){
+            steps{
+                bat "kubectl apply -f k8s"
+            }
+        }
     }
-    post {  
-         always {  
-             echo 'This will always run'  
-         }  
-         success {   
-           
-             mail bcc: '', body: "<b>Example</b><br>Project: ${env.JOB_NAME} <br>Build Number: ${env.BUILD_NUMBER} <br> Success!! <br> URL de build: ${env.BUILD_URL}", cc: '', charset: 'UTF-8', from: 'sravaninuthanapati15@gmail.com', mimeType: 'text/html', replyTo: '', subject: "ERROR CI: Project name -> ${env.JOB_NAME}", to: "sravaninuthanapati15@gmail.com"; 
-        
-         }
-         failure {  
-             mail bcc: '', body: "<b>Example</b><br>Project: ${env.JOB_NAME} <br>Build Number: ${env.BUILD_NUMBER} <br> URL de build: ${env.BUILD_URL}", cc: '', charset: 'UTF-8', from: 'sravaninuthanapati15@gmail.com', mimeType: 'text/html', replyTo: '', subject: "ERROR CI: Project name -> ${env.JOB_NAME}", to: "sravaninuthanapati15@gmail.com";  
-         }  
-         
-     }
-  }
+}
