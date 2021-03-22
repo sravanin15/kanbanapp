@@ -34,7 +34,7 @@ pipeline{
 
         stage("kubernates"){
             steps{
-                bat "kubectl apply -f k8sfile"
+                sh "kubectl apply -f k8sfile"
             }
         }
     }
