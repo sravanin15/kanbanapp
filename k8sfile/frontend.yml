@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: forntend-deploy
+  labels:
+    app: forntend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-pod
+  template:
+    metadata:
+      labels:
+        app: my-pod
+    spec:
+      containers:
+      - name: forntend
+        image: sravanin15/challenge-ui:latest
+        imagePullPolicy: IfNotPresent
+
+
+        ports:
+          - name: http
+            containerPort: 80
+      
