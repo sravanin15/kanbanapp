@@ -18,7 +18,7 @@ pipeline{
 
         stage("commiting the deocker images"){
             steps{
-                bat "docker commit kanban-ui sravani15/challenge-ui"
+                bat "docker commit kanban-ui sravanin15/challenge-ui"
                 bat "docker commit kanban-app sravanin15/challenge-app" 
             }
         }
